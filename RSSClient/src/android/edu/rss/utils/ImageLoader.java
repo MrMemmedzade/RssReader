@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
@@ -15,18 +18,25 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.example.rssclient.R;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
+import android.util.Log;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+
+import com.example.rssclient.R;
 
 public class ImageLoader implements Serializable {
     
@@ -69,15 +79,13 @@ private static final long serialVersionUID = 1L;
 	        queuePhoto(url, imageView);
 		}
     }
-        
-    private void queuePhoto(String url, ImageView imageView)
-    {
+    
+    private void queuePhoto(String url, ImageView imageView) {
         PhotoToLoad p=new PhotoToLoad(url, imageView);
         executorService.submit(new PhotosLoader(p));
     }
     
-    private Bitmap getBitmap(String url) 
-    {
+    private Bitmap getBitmap(String url) {
         File f=fileCache.getFile(url);
         
         //from SD cache
@@ -109,7 +117,7 @@ private static final long serialVersionUID = 1L;
     }
 
     //decodes image and scales it to reduce memory consumption
-    private Bitmap decodeFile(File f){
+    private Bitmap decodeFile(File f) {
         try {
             //decode image size
             BitmapFactory.Options o = new BitmapFactory.Options();
@@ -135,8 +143,7 @@ private static final long serialVersionUID = 1L;
     }
     
     //Task for the queue
-    private class PhotoToLoad
-    {
+    private class PhotoToLoad {
         public String url;
         public ImageView imageView;
         public PhotoToLoad(String u, ImageView i){
@@ -154,7 +161,7 @@ private static final long serialVersionUID = 1L;
         public void run() {
             if(imageViewReused(photoToLoad))
                 return;
-            Bitmap bmp=getBitmap(photoToLoad.url);
+            Bitmap bmp = getBitmap(photoToLoad.url);
             memoryCache.put(photoToLoad.url, bmp);
             if(imageViewReused(photoToLoad))
                 return;
@@ -172,8 +179,7 @@ private static final long serialVersionUID = 1L;
     }
     
     //Used to display bitmap in the UI thread
-    class BitmapDisplayer implements Runnable
-    {
+    class BitmapDisplayer implements Runnable {
         Bitmap bitmap;
         PhotoToLoad photoToLoad;
         public BitmapDisplayer(Bitmap b, PhotoToLoad p){bitmap=b;photoToLoad=p;}
