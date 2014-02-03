@@ -6,7 +6,7 @@ import nl.matshofman.saxrssreader.RssItem;
 import android.content.Context;
 import android.edu.rss.utils.ImageLoader;
 import android.edu.rss.utils.Utils;
-import android.os.AsyncTask;
+import android.edu.rss.utils.XMLEncoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +56,7 @@ public class FeedAdapter extends BaseAdapter {
 		}
 		
 		RssItem feed = (RssItem)getItem(position);
-		String title = feed.getTitle();
+		String title = XMLEncoder.decode(feed.getTitle());
 		String imageUrl = Utils.getImageUrl(feed.getDescription());
 		
 		if(title != null && imageUrl != null){
