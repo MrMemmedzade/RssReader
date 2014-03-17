@@ -8,7 +8,15 @@
         android:id="@+id/fragmentList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_weight="2"
         class="android.edu.rss.fragments.RSSListFragment"
         />
+    
+    <FrameLayout
+        android:id="@+id/frameInfo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+    
 
 </LinearLayout>
